@@ -12,6 +12,7 @@ load("data/bladder_cancer.rdata")
 
 mse<-bladder_cancer
 
+save.plot <- F
 #######split into training and validation
 
 mse_train <- mse[,mse$sample_name=="TMA1"]
@@ -62,24 +63,35 @@ mse_train$svm <- ifelse(label_svm=="Tumor", 'Cancer', 'Normal')
 label_svm<-predict(naive_svm,test_x)
 mse_test$svm<-ifelse(label_svm=="Tumor", 'Cancer', 'Normal')
 
-image(mse_train,svm~x*y, xlim=xaxis_train, ylim=yaxis_train, main="SVM: Training")
+if (save.plot == T)
+{
+  pdf("results/bladder_SVM.pdf")
+  print(image(mse_train,svm~x*y, xlim=xaxis_train, ylim=yaxis_train, main="SVM: Training"))
+  
+  print(image(mse_test,svm~x*y, xlim=xaxis_test, ylim=yaxis_test, main="SVM: Validation"))
+  dev.off()
+}
 
-image(mse_test,svm~x*y, xlim=xaxis_test, ylim=yaxis_test, main="SVM: Validation")
+print(paste0("The accuracy of SVM on training data wrt label is: ", 
+             accu(mse_train$svm, mse_train$diagnosis)) )
 
-print("The accuracy of SVM on training data wrt label is:\\" )
-print(accu(mse_train$svm, mse_train$diagnosis))
-print("The balanced accuracy of SVM on training data wrt label is:\\" )
-print(balance_accu(mse_train$svm, mse_train$diagnosis))
+print(paste0("The balanced accuracy of SVM on training data wrt label is: ", 
+             balance_accu(mse_train$svm, mse_train$diagnosis)) )
 
-print("The accuracy of SVM on training data wrt truth is:\\" )
-print(accu(mse_train$svm, mse_train$truth))
-print("The balanced accuracy of SVM on training data wrt truth is:\\" )
-print(balance_accu(mse_train$svm, mse_train$truth))
 
-print("The accuracy of SVM on testing data wrt truth is:\\" )
-print(accu(mse_test$svm, mse_test$truth))
-print("The balanced accuracy of SVM on testing data wrt truth is:\\" )
-print(balance_accu(mse_test$svm, mse_test$truth))
+print(paste0("The accuracy of SVM on training data wrt truth is: ", 
+             accu(mse_train$svm, mse_train$truth)) )
+
+print(paste0("The balanced accuracy of SVM on training data wrt truth is: ", 
+             balance_accu(mse_train$svm, mse_train$truth)) )
+
+
+print(paste0("The accuracy of SVM on testing data wrt truth is: ", 
+             accu(mse_test$svm, mse_test$truth)) )
+
+print(paste0("The balanced accuracy of SVM on testing data wrt truth is: ", 
+             balance_accu(mse_test$svm, mse_test$truth)) )
+
 
 
 
@@ -98,14 +110,14 @@ for (s in unique(mse_train$sample))
     n_samples<-c(n_samples, s)
 }
 
-threshhold=0.002*dim(mse_train)[2]/2
+threshhold=0.001*dim(mse_train)[2]
 train_x<-t(spectra(mse_train))
 train_y<-mse_train$label
 
 test_x<-t(spectra(mse_test))
 test_y<-mse_test$label
 
-iteration<-200
+iteration<-100
 for (i in 1:iteration)
 {
   mi_svm<-svm(x=train_x,y=train_y, kernel = 'sigmoid',  gamma = 0.00125, probability = T)
@@ -135,23 +147,36 @@ mse_train$mi_svm <- ifelse(label_svm=="Tumor", 'Cancer', 'Normal')
 label_svm<-predict(mi_svm,test_x)
 mse_test$mi_svm<-ifelse(label_svm=="Tumor", 'Cancer', 'Normal')
 
-image(mse_train,mi_svm~x*y, xlim=xaxis_train, ylim=yaxis_train)
+if (save.plot == T)
+{
+  pdf(file="results/bladder_mi_SVM.pdf")
+  
+  print(image(mse_train,mi_svm~x*y, xlim=xaxis_train, ylim=yaxis_train,main="mi-SVM: Training"))
+  
+  print(image(mse_test,mi_svm~x*y, xlim=xaxis_test, ylim=yaxis_test, main="mi-SVM: Validation"))
+  dev.off()
+}
 
-image(mse_test,mi_svm~x*y, xlim=xaxis_test, ylim=yaxis_test)
 
 
 
-print("The accuracy of mi-SVM on training data wrt label is:\\" )
-print(accu(mse_train$mi_svm, mse_train$diagnosis))
-print("The balanced accuracy of mi-SVM on training data wrt label is:\\" )
-print(balance_accu(mse_train$mi_svm, mse_train$diagnosis))
+print(paste0("The accuracy of SVM on training data wrt label is: ", 
+             accu(mse_train$mi_svm, mse_train$diagnosis)) )
 
-print("The accuracy of mi-SVM on training data wrt truth is:\\" )
-print(accu(mse_train$mi_svm, mse_train$truth))
-print("The balanced accuracy of mi-SVM on training data wrt truth is:\\" )
-print(balance_accu(mse_train$mi_svm, mse_train$truth))
+print(paste0("The balanced accuracy of SVM on training data wrt label is: ", 
+             balance_accu(mse_train$mi_svm, mse_train$diagnosis)) )
 
-print("The accuracy of mi-SVM on testing data wrt truth is:\\" )
-print(accu(mse_test$mi_svm, mse_test$truth))
-print("The balanced accuracy of mi-SVM on testing data wrt truth is:\\" )
-print(balance_accu(mse_test$mi_svm, mse_test$truth))
+
+print(paste0("The accuracy of SVM on training data wrt truth is: ", 
+             accu(mse_train$mi_svm, mse_train$truth)) )
+
+print(paste0("The balanced accuracy of SVM on training data wrt truth is: ", 
+             balance_accu(mse_train$mi_svm, mse_train$truth)) )
+
+
+print(paste0("The accuracy of SVM on testing data wrt truth is: ", 
+             accu(mse_test$mi_svm, mse_test$truth)) )
+
+print(paste0("The balanced accuracy of SVM on testing data wrt truth is: ", 
+             balance_accu(mse_test$mi_svm, mse_test$truth)) )
+
